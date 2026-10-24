@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% from "_macros.html" import pager %}{% block content %}
+<h4>Sales</h4><div class="table-responsive card"><table class="table table-sm mb-0"><thead><tr><th>Invoice</th><th>Date</th><th>Customer</th><th class="text-end">Total</th><th class="text-end">Due</th></tr></thead><tbody>
+{% for s in page.items %}<tr><td><a href="{{ url_for('sales.detail', sale_id=s.id) }}">{{ s.invoice_no }}</a></td><td>{{ s.created_at|local }}</td><td>{{ s.customer.name if s.customer else 'Walk-in' }}</td><td class="text-end">{{ s.total|money }}</td><td class="text-end">{{ s.balance|money }}</td></tr>
+{% else %}<tr><td colspan="5" class="text-center text-muted py-4">No sales yet.</td></tr>{% endfor %}</tbody></table></div>
+{{ pager(page, 'sales.sales_list') }}{% endblock %}

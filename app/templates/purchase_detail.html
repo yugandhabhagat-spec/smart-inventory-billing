@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block content %}
+<h4>{{ p.ref }} <span class="badge bg-secondary">{{ p.status }}</span></h4>
+<p>Supplier: {{ p.supplier.name }} &middot; Created {{ p.created_at|local }}{% if p.received_at %} &middot; Received {{ p.received_at|local }}{% endif %}</p>
+<div class="table-responsive card mb-3"><table class="table table-sm mb-0"><thead><tr><th>Product</th><th class="text-end">Qty</th><th class="text-end">Unit cost</th></tr></thead><tbody>
+{% for i in p.items %}<tr><td>{{ i.product.sku }} - {{ i.product.name }}</td><td class="text-end">{{ i.qty|qty }}</td><td class="text-end">{{ i.unit_cost|money }}</td></tr>{% endfor %}
+</tbody><tfoot><tr><th colspan="2" class="text-end">Total</th><th class="text-end">{{ p.total|money }}</th></tr></tfoot></table></div>
+{% if p.status == 'draft' %}<div class="d-flex gap-2">
+<form method="post" action="{{ url_for('purchasing.receive', pid=p.id) }}" onsubmit="return confirm('Receive goods and add to stock?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-primary">Receive goods</button></form>
+<form method="post" action="{{ url_for('purchasing.cancel', pid=p.id) }}" onsubmit="return confirm('Cancel this draft?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-outline-danger">Cancel</button></form></div>{% endif %}
+{% endblock %}

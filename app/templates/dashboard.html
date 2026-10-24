@@ -1,0 +1,27 @@
+{% extends "base.html" %}{% block content %}
+<h4 class="mb-3">Dashboard</h4>
+<div class="row g-3 mb-3">
+{% for label, val in [
+ ('Active products', active_products), ('Total stock (units)', total_stock|qty),
+ ("Today's net sales (ex-tax)", today.net|money), ("Today's invoices", today.count),
+ ("Gross profit today", today.gross|money), ("Gross profit (30 days)", month.gross|money),
+ ('Cash collected today', cash_today|money), ('Outstanding customer balances', outstanding|money),
+ ('Inventory cost value', cost_value|money)] %}
+<div class="col-6 col-lg-3"><div class="card p-3"><div class="text-muted small">{{ label }}</div><div class="fs-5 fw-semibold">{{ val }}</div></div></div>
+{% endfor %}</div>
+<p class="small text-muted">Net sales exclude tax. Gross profit = net sales &minus; cost of goods sold (weighted-average cost at time of sale). Net profit needs expenses, which are not implemented yet.</p>
+<div class="card p-3 mb-3"><h6>Net sales, last 7 days</h6><canvas id="chart" height="90"></canvas></div>
+<div class="row g-3">
+<div class="col-lg-6"><div class="card p-3"><h6>Out of stock ({{ out|length }})</h6>
+{% for p in out %}<div class="d-flex justify-content-between border-bottom py-1"><span>{{ p.name }} <small class="text-muted">{{ p.sku }}</small></span>
+<a href="{{ url_for('purchasing.new_purchase', product=p.id) }}" class="small">Create purchase</a></div>{% else %}<span class="text-muted">None.</span>{% endfor %}
+<h6 class="mt-3">Low stock ({{ low|length }})</h6>
+{% for p in low %}<div class="d-flex justify-content-between border-bottom py-1"><span>{{ p.name }} <small class="text-muted">{{ p.sku }} &middot; {{ p.stock|qty }} / min {{ p.min_stock|qty }} &middot; suggest {{ p.suggested_reorder|qty }}</small></span>
+<a href="{{ url_for('purchasing.new_purchase', product=p.id) }}" class="small">Create purchase</a></div>{% else %}<span class="text-muted">None.</span>{% endfor %}</div></div>
+<div class="col-lg-6"><div class="card p-3"><h6>Recent sales</h6>
+{% for s in recent_sales %}<div class="d-flex justify-content-between border-bottom py-1"><a href="{{ url_for('sales.detail', sale_id=s.id) }}">{{ s.invoice_no }}</a><span>{{ s.total|money }}</span></div>{% else %}<span class="text-muted">No sales yet.</span>{% endfor %}
+<h6 class="mt-3">Recent stock movements</h6>
+{% for m in recent_moves %}<div class="d-flex justify-content-between border-bottom py-1"><span>{{ m.product.name }}</span><span>{{ m.qty_change|qty }} ({{ m.movement_type }})</span></div>{% else %}<span class="text-muted">No movements yet.</span>{% endfor %}</div></div>
+</div>{% endblock %}
+{% block scripts %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>new Chart(document.getElementById('chart'),{type:'bar',data:{labels:{{ chart_labels|tojson }},datasets:[{label:'Net sales',data:{{ chart_values|tojson }},backgroundColor:'#0b7285'}]},options:{plugins:{legend:{display:false}}}});</script>{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block content %}
+<h4>{{ 'Edit' if product else 'Add' }} product</h4>
+<form method="post" class="card p-3 row g-3 mx-0"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="col-md-6"><label class="form-label">Name</label><input name="name" class="form-control" required value="{{ form.get('name', product.name if product else '') }}"></div>
+<div class="col-md-3"><label class="form-label">SKU (unique)</label><input name="sku" class="form-control" required value="{{ form.get('sku', product.sku if product else '') }}"></div>
+<div class="col-md-3"><label class="form-label">Barcode (optional)</label><input name="barcode" class="form-control" value="{{ form.get('barcode', (product.barcode or '') if product else '') }}"></div>
+<div class="col-md-4"><label class="form-label">Category</label><select name="category_id" class="form-select"><option value="">None</option>
+{% for c in categories %}<option value="{{ c.id }}" {{ 'selected' if form.get('category_id', (product.category_id|string) if product else '') == c.id|string }}>{{ c.name }}</option>{% endfor %}</select></div>
+<div class="col-md-2"><label class="form-label">Unit</label><input name="unit" class="form-control" value="{{ form.get('unit', product.unit if product else 'pcs') }}"></div>
+<div class="col-md-2"><label class="form-label">Cost</label><input name="cost" inputmode="decimal" class="form-control" required value="{{ form.get('cost', product.cost if product else '') }}"></div>
+<div class="col-md-2"><label class="form-label">Selling price</label><input name="price" inputmode="decimal" class="form-control" required value="{{ form.get('price', product.price if product else '') }}"></div>
+<div class="col-md-2"><label class="form-label">Min stock</label><input name="min_stock" inputmode="decimal" class="form-control" required value="{{ form.get('min_stock', product.min_stock if product else '0') }}"></div>
+{% if not product %}<div class="col-md-3"><label class="form-label">Opening stock</label><input name="stock" inputmode="decimal" class="form-control" required value="{{ form.get('stock', '0') }}"></div>
+{% else %}<div class="col-md-3"><label class="form-label">Current stock</label><input class="form-control" disabled value="{{ product.stock|qty }}"><div class="form-text">Change stock via Purchases or Inventory adjustments.</div></div>{% endif %}
+<div class="col-12"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2">{{ form.get('description', (product.description or '') if product else '') }}</textarea></div>
+<div class="col-12 d-flex gap-2"><button class="btn btn-primary">Save</button><a class="btn btn-outline-secondary" href="{{ url_for('catalog.products') }}">Cancel</a></div></form>{% endblock %}

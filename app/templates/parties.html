@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% from "_macros.html" import pager %}{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2"><h4>{{ title }}</h4><a class="btn btn-primary btn-sm" href="{{ url_for(form_endpoint) }}">Add</a></div>
+<form class="d-flex gap-2 mb-3"><input name="q" value="{{ request.args.get('q','') }}" class="form-control" placeholder="Search name"><button class="btn btn-outline-secondary">Search</button></form>
+<div class="table-responsive card"><table class="table table-sm mb-0"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Status</th><th></th></tr></thead><tbody>
+{% for x in page.items %}<tr><td>{{ x.name }}</td><td>{{ x.phone or '' }}</td><td>{{ x.email or '' }}</td><td>{{ 'Active' if x.active else 'Inactive' }}</td>
+<td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{{ url_for(form_endpoint, pid=x.id) }}">Edit</a>
+<form method="post" class="d-inline" action="{{ url_for(toggle_endpoint, pid=x.id) }}" onsubmit="return confirm('Change active status?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-secondary">{{ 'Deactivate' if x.active else 'Activate' }}</button></form></td></tr>
+{% else %}<tr><td colspan="5" class="text-center text-muted py-4">Nothing here yet.</td></tr>{% endfor %}</tbody></table></div>
+{{ pager(page, request.endpoint) }}{% endblock %}

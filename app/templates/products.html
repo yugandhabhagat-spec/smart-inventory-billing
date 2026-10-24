@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% from "_macros.html" import pager %}{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2"><h4>Products</h4>
+{% if current_user.role != 'cashier' %}<a class="btn btn-primary btn-sm" href="{{ url_for('catalog.product_form') }}">Add product</a>{% endif %}</div>
+<form class="row g-2 mb-3"><div class="col-12 col-md-4"><input name="q" value="{{ request.args.get('q','') }}" class="form-control" placeholder="Name, SKU or barcode"></div>
+<div class="col-6 col-md-3"><select name="category" class="form-select"><option value="">All categories</option>{% for c in categories %}<option value="{{ c.id }}" {{ 'selected' if request.args.get('category')==c.id|string }}>{{ c.name }}</option>{% endfor %}</select></div>
+<div class="col-6 col-md-3"><select name="stock" class="form-select"><option value="">Any stock</option><option value="low" {{ 'selected' if request.args.get('stock')=='low' }}>Low</option><option value="out" {{ 'selected' if request.args.get('stock')=='out' }}>Out</option></select></div>
+<div class="col-12 col-md-2"><button class="btn btn-outline-secondary w-100">Filter</button></div></form>
+<div class="table-responsive card"><table class="table table-sm mb-0 align-middle"><thead><tr><th>SKU</th><th>Name</th><th>Category</th><th class="text-end">Price</th>
+{% if current_user.role != 'cashier' %}<th class="text-end">Cost</th>{% endif %}<th class="text-end">Stock</th><th>Status</th><th></th></tr></thead><tbody>
+{% for p in page.items %}<tr><td>{{ p.sku }}</td><td>{{ p.name }}{% if not p.active %} <span class="badge bg-secondary">inactive</span>{% endif %}</td><td>{{ p.category.name if p.category }}</td>
+<td class="text-end">{{ p.price|money }}</td>{% if current_user.role != 'cashier' %}<td class="text-end">{{ p.cost|money }}</td>{% endif %}
+<td class="text-end">{{ p.stock|qty }} {{ p.unit }}</td>
+<td>{% if p.stock_status == 'OUT OF STOCK' %}<span class="badge bg-danger">OUT OF STOCK</span>{% elif p.stock_status == 'LOW STOCK' %}<span class="badge bg-warning text-dark">LOW STOCK</span>{% else %}<span class="badge bg-success">OK</span>{% endif %}</td>
+<td class="text-end">{% if current_user.role != 'cashier' %}<a href="{{ url_for('catalog.product_form', pid=p.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+<form method="post" action="{{ url_for('catalog.product_toggle', pid=p.id) }}" class="d-inline" onsubmit="return confirm('Change active status?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-secondary">{{ 'Deactivate' if p.active else 'Activate' }}</button></form>{% endif %}</td></tr>
+{% else %}<tr><td colspan="8" class="text-center text-muted py-4">No products found.</td></tr>{% endfor %}</tbody></table></div>
+{{ pager(page, 'catalog.products') }}{% endblock %}

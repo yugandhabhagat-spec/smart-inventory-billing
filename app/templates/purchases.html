@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% from "_macros.html" import pager %}{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2"><h4>Purchases</h4><a class="btn btn-primary btn-sm" href="{{ url_for('purchasing.new_purchase') }}">New purchase</a></div>
+<div class="table-responsive card"><table class="table table-sm mb-0"><thead><tr><th>Ref</th><th>Supplier</th><th>Status</th><th class="text-end">Total</th><th>Created</th></tr></thead><tbody>
+{% for p in page.items %}<tr><td><a href="{{ url_for('purchasing.purchase_detail', pid=p.id) }}">{{ p.ref }}</a></td><td>{{ p.supplier.name }}</td><td>{{ p.status }}</td><td class="text-end">{{ p.total|money }}</td><td>{{ p.created_at|local }}</td></tr>
+{% else %}<tr><td colspan="5" class="text-center text-muted py-4">No purchases yet.</td></tr>{% endfor %}</tbody></table></div>
+{{ pager(page, 'purchasing.purchases') }}{% endblock %}

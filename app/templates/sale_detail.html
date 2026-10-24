@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2"><h4>{{ sale.invoice_no }}</h4>
+<div class="d-flex gap-2"><a class="btn btn-primary btn-sm" href="{{ url_for('sales.pdf', sale_id=sale.id) }}">Download PDF</a><button class="btn btn-outline-secondary btn-sm" onclick="window.print()">Print</button></div></div>
+<p>{{ sale.created_at|local }} &middot; Customer: {{ sale.customer.name if sale.customer else 'Walk-in' }} &middot; Cashier: {{ sale.cashier.full_name }}</p>
+<div class="table-responsive card mb-3"><table class="table table-sm mb-0"><thead><tr><th>SKU</th><th>Item</th><th class="text-end">Qty</th><th class="text-end">Unit</th><th class="text-end">Total</th></tr></thead><tbody>
+{% for i in sale.items %}<tr><td>{{ i.sku }}</td><td>{{ i.name }}</td><td class="text-end">{{ i.qty|qty }}</td><td class="text-end">{{ i.unit_price|money }}</td><td class="text-end">{{ i.line_total|money }}</td></tr>{% endfor %}</tbody></table></div>
+<div class="card p-3 mb-3" style="max-width:380px"><div class="d-flex justify-content-between"><span>Subtotal</span><span>{{ sale.subtotal|money }}</span></div>
+<div class="d-flex justify-content-between"><span>Discount</span><span>{{ sale.discount|money }}</span></div><div class="d-flex justify-content-between"><span>Tax</span><span>{{ sale.tax|money }}</span></div>
+<div class="d-flex justify-content-between fw-bold"><span>Total payable</span><span>{{ sale.total|money }}</span></div><div class="d-flex justify-content-between"><span>Paid</span><span>{{ sale.paid|money }}</span></div>
+<div class="d-flex justify-content-between"><span>Outstanding</span><span>{{ sale.balance|money }}</span></div>
+{% if sale.change_given > 0 %}<div class="d-flex justify-content-between"><span>Change returned</span><span>{{ sale.change_given|money }}</span></div>{% endif %}</div>
+<h6>Payments</h6><ul class="list-group mb-3" style="max-width:380px">{% for p in sale.payments %}<li class="list-group-item d-flex justify-content-between"><span>{{ p.created_at|local }} &middot; {{ p.method }}</span><span>{{ p.amount|money }}</span></li>{% else %}<li class="list-group-item text-muted">No payments recorded.</li>{% endfor %}</ul>
+{% if sale.balance > 0 %}<form method="post" action="{{ url_for('sales.pay', sale_id=sale.id) }}" class="d-flex gap-2" style="max-width:380px"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input name="amount" inputmode="decimal" class="form-control" placeholder="Amount" required><select name="method" class="form-select"><option>cash</option><option>upi</option><option>card</option><option>other</option></select><button class="btn btn-primary">Pay</button></form>{% endif %}
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block content %}
+<h4>Categories</h4>
+<form method="post" class="d-flex gap-2 mb-3"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input name="name" class="form-control" placeholder="New category" required maxlength="80"><button class="btn btn-primary">Add</button></form>
+<ul class="list-group">{% for c in categories %}<li class="list-group-item">{{ c.name }}</li>{% else %}<li class="list-group-item text-muted">No categories yet.</li>{% endfor %}</ul>
+{% endblock %}

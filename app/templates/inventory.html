@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% from "_macros.html" import pager %}{% block content %}
+<h4>Inventory movements</h4>
+<form method="post" action="{{ url_for('inventory.adjust') }}" class="card p-3 mb-3 row g-2 mx-0"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="col-12 col-md-4"><select name="product_id" class="form-select" required><option value="">Product...</option>{% for p in products %}<option value="{{ p.id }}">{{ p.sku }} - {{ p.name }} ({{ p.stock|qty }})</option>{% endfor %}</select></div>
+<div class="col-6 col-md-2"><select name="movement_type" class="form-select"><option value="adjustment">Adjustment</option><option value="damaged">Damaged</option><option value="expired">Expired</option></select></div>
+<div class="col-6 col-md-2"><input name="change" inputmode="decimal" class="form-control" placeholder="+/- qty" required></div>
+<div class="col-12 col-md-3"><input name="reason" class="form-control" placeholder="Reason (required)" required></div>
+<div class="col-12 col-md-1"><button class="btn btn-primary w-100">Apply</button></div></form>
+<form class="mb-2"><select name="product" class="form-select" onchange="this.form.submit()"><option value="">All products</option>{% for p in products %}<option value="{{ p.id }}" {{ 'selected' if request.args.get('product')==p.id|string }}>{{ p.name }}</option>{% endfor %}</select></form>
+<div class="table-responsive card"><table class="table table-sm mb-0"><thead><tr><th>When</th><th>Product</th><th class="text-end">Change</th><th>Type</th><th>User</th><th>Reason</th></tr></thead><tbody>
+{% for m in page.items %}<tr><td>{{ m.created_at|local }}</td><td>{{ m.product.name }}</td><td class="text-end">{{ m.qty_change|qty }}</td><td>{{ m.movement_type }}</td><td>{{ m.user.username if m.user }}</td><td>{{ m.reason or '' }}</td></tr>
+{% else %}<tr><td colspan="6" class="text-center text-muted py-4">No movements yet.</td></tr>{% endfor %}</tbody></table></div>
+{{ pager(page, 'inventory.movements') }}{% endblock %}

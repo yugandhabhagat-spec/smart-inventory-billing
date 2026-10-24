@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% block content %}
+<h4>New purchase (draft)</h4>
+<form method="post" class="card p-3"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="mb-3"><label class="form-label">Supplier</label><select name="supplier_id" class="form-select" required><option value="">Select...</option>
+{% for s in suppliers %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select></div>
+<div id="rows"></div><button type="button" class="btn btn-outline-primary btn-sm mb-3" id="add">+ Add item</button>
+<div><button class="btn btn-primary">Save draft</button> <a class="btn btn-outline-secondary" href="{{ url_for('purchasing.purchases') }}">Cancel</a></div></form>
+<template id="row"><div class="row g-2 mb-2 item"><div class="col-12 col-md-6"><select name="product_id" class="form-select p"><option value="">Select product...</option>
+{% for p in products %}<option value="{{ p.id }}" data-cost="{{ p.cost }}">{{ p.sku }} - {{ p.name }}</option>{% endfor %}</select></div>
+<div class="col-5 col-md-2"><input name="qty" inputmode="decimal" class="form-control" placeholder="Qty"></div>
+<div class="col-5 col-md-2"><input name="unit_cost" inputmode="decimal" class="form-control c" placeholder="Unit cost"></div>
+<div class="col-2"><button type="button" class="btn btn-outline-danger rm">&times;</button></div></div></template>
+{% endblock %}
+{% block scripts %}<script>
+const rows=document.getElementById('rows'),tpl=document.getElementById('row');
+function addRow(pid){const n=tpl.content.cloneNode(true),sel=n.querySelector('.p'),cost=n.querySelector('.c');
+ if(pid){sel.value=pid;const o=sel.selectedOptions[0];if(o)cost.value=o.dataset.cost;}
+ sel.onchange=()=>{const o=sel.selectedOptions[0];if(o&&o.dataset.cost)cost.value=o.dataset.cost;};
+ n.querySelector('.rm').onclick=e=>e.target.closest('.item').remove();rows.appendChild(n);}
+document.getElementById('add').onclick=()=>addRow();
+const pre={{ preselect|tojson }};(pre.length?pre:[null]).forEach(addRow);
+</script>{% endblock %}

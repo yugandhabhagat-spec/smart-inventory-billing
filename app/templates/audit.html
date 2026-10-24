@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% from "_macros.html" import pager %}{% block content %}
+<h4>Audit log</h4><div class="table-responsive card"><table class="table table-sm mb-0"><thead><tr><th>When</th><th>User</th><th>Action</th><th>Record</th><th>Details</th></tr></thead><tbody>
+{% for a in page.items %}<tr><td>{{ a.created_at|local }}</td><td>{{ a.user.username if a.user else '-' }}</td><td>{{ a.action }}</td><td>{{ a.entity or '' }} {{ a.entity_id or '' }}</td><td>{{ a.details or '' }}</td></tr>
+{% else %}<tr><td colspan="5" class="text-center text-muted py-4">No events yet.</td></tr>{% endfor %}</tbody></table></div>
+{{ pager(page, 'employees.audit_log') }}{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block content %}
+<h4>Add employee</h4><form method="post" class="card p-3" style="max-width:480px"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="mb-3"><label class="form-label">Username</label><input name="username" class="form-control" required value="{{ form.get('username','') }}"></div>
+<div class="mb-3"><label class="form-label">Full name</label><input name="full_name" class="form-control" required value="{{ form.get('full_name','') }}"></div>
+<div class="mb-3"><label class="form-label">Role</label><select name="role" class="form-select"><option value="cashier">Cashier</option><option value="manager">Manager</option></select></div>
+<div class="mb-3"><label class="form-label">Temporary password (min 10 chars)</label><input name="password" type="password" minlength="10" class="form-control" required autocomplete="new-password"></div>
+<div class="d-flex gap-2"><button class="btn btn-primary">Create</button><a class="btn btn-outline-secondary" href="{{ url_for('employees.list_users') }}">Cancel</a></div></form>{% endblock %}
