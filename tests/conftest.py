@@ -4,7 +4,7 @@ import pytest
 
 from app import create_app
 from app.extensions import db
-from app.models import Customer, Product, Supplier, User
+from app.models import Customer, InventoryMovement, Product, Supplier, User
 from config import TestConfig
 
 PW = "correct-horse-1"
@@ -41,6 +41,9 @@ def make_product(sku="P1", price="10", cost="6", stock="10", minimum="2"):
     p = Product(sku=sku, name=f"Item {sku}", price=Decimal(price), cost=Decimal(cost),
                 stock=Decimal(stock), min_stock=Decimal(minimum))
     db.session.add(p)
+    db.session.flush()
+    if p.stock > 0:
+        db.session.add(InventoryMovement(product_id=p.id, qty_change=p.stock, movement_type="opening"))
     db.session.commit()
     return p
 
